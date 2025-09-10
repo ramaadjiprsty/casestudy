@@ -1,32 +1,17 @@
 package com.rama.casestudy.ui.features.user_list
 
+import android.content.res.Configuration
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -34,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
@@ -42,7 +28,6 @@ import com.rama.casestudy.navigation.Screen
 import com.rama.casestudy.util.Resource
 import org.koin.androidx.compose.koinViewModel
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserListScreen(
@@ -50,6 +35,7 @@ fun UserListScreen(
     viewModel: UserListViewModel = koinViewModel()
 ) {
     val state = viewModel.userListState.collectAsState().value
+    val configuration = LocalConfiguration.current
 
     Scaffold(
         topBar = {
@@ -65,7 +51,7 @@ fun UserListScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding) // Terapkan innerPadding di sini
+                .padding(innerPadding)
         ) {
             when (state) {
                 is Resource.Loading -> {
@@ -73,19 +59,15 @@ fun UserListScreen(
                 }
                 is Resource.Success -> {
                     state.data?.let { users ->
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(16.dp)
-                        ) {
-                            items(users) { user ->
-                                UserItem(
-                                    user = user,
-                                    onClick = {
-                                        navController.navigate(Screen.UserDetail.createRoute(user.id))
-                                    }
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
+                        val onItemClick = { user: User ->
+                            navController.navigate(Screen.UserDetail.createRoute(user.id))
+                        }
+
+                        // Cek orientasi layar untuk menentukan layout
+                        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                            UserGridContent(users = users, onItemClick = onItemClick)
+                        } else {
+                            UserListContent(users = users, onItemClick = onItemClick)
                         }
                     }
                 }
@@ -102,6 +84,34 @@ fun UserListScreen(
 }
 
 @Composable
+private fun UserListContent(users: List<User>, onItemClick: (User) -> Unit) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(users) { user ->
+            UserItem(user = user, onClick = { onItemClick(user) })
+        }
+    }
+}
+
+@Composable
+private fun UserGridContent(users: List<User>, onItemClick: (User) -> Unit) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 220.dp),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items(users) { user ->
+            UserItem(user = user, onClick = { onItemClick(user) })
+        }
+    }
+}
+
+@Composable
 fun UserItem(user: User, onClick: () -> Unit) {
     val cardColor = when {
         user.age <= 30 -> Color(0xFFC8E6C9) // Warna Hijau Muda
@@ -112,7 +122,7 @@ fun UserItem(user: User, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
             containerColor = cardColor
         )
