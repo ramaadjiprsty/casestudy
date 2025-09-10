@@ -4,21 +4,18 @@ import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,8 +38,8 @@ fun UserListScreen(
     viewModel: UserListViewModel = koinViewModel()
 ) {
     val state = viewModel.userListState.collectAsState().value
+    val searchQuery by viewModel.searchQuery.collectAsState()
     val configuration = LocalConfiguration.current
-
     var isMenuExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -58,8 +55,6 @@ fun UserListScreen(
                         IconButton(onClick = { isMenuExpanded = true }) {
                             Icon(Icons.Default.MoreVert, contentDescription = "Sort Menu")
                         }
-
-                        // Menu Dropdown
                         DropdownMenu(
                             expanded = isMenuExpanded,
                             onDismissRequest = { isMenuExpanded = false }
@@ -84,33 +79,39 @@ fun UserListScreen(
             )
         }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            when (state) {
-                is Resource.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-                is Resource.Success -> {
-                    state.data?.let { users ->
-                        val onItemClick = { user: User ->
-                            navController.navigate(Screen.UserDetail.createRoute(user.id))
-                        }
+        Column(modifier = Modifier.padding(innerPadding)) {
+            SearchBar(
+                query = searchQuery,
+                onQueryChanged = viewModel::onSearchQueryChanged,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            )
 
-                        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                            UserGridContent(users = users, onItemClick = onItemClick)
-                        } else {
-                            UserListContent(users = users, onItemClick = onItemClick)
+            Box(modifier = Modifier.fillMaxSize()) {
+                when (state) {
+                    is Resource.Loading -> {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
+                    is Resource.Success -> {
+                        state.data?.let { users ->
+                            val onItemClick = { user: User ->
+                                navController.navigate(Screen.UserDetail.createRoute(user.id))
+                            }
+
+                            if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                                UserGridContent(users = users, onItemClick = onItemClick)
+                            } else {
+                                UserListContent(users = users, onItemClick = onItemClick)
+                            }
                         }
                     }
-                }
-                is Resource.Error -> {
-                    ErrorScreen(
-                        message = state.message ?: "An unknown error occurred",
-                        onRetry = { viewModel.fetchUsers() }
-                    )
+                    is Resource.Error -> {
+                        ErrorScreen(
+                            message = state.message ?: "An unknown error occurred",
+                            onRetry = viewModel::fetchUsers
+                        )
+                    }
                 }
             }
         }
@@ -118,10 +119,33 @@ fun UserListScreen(
 }
 
 @Composable
+private fun SearchBar(
+    query: String,
+    onQueryChanged: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChanged,
+        modifier = modifier,
+        placeholder = { Text("Search by name...") },
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search Icon") },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { onQueryChanged("") }) {
+                    Icon(Icons.Default.Clear, contentDescription = "Clear Search")
+                }
+            }
+        },
+        singleLine = true
+    )
+}
+
+@Composable
 private fun UserListContent(users: List<User>, onItemClick: (User) -> Unit) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(users) { user ->
@@ -148,9 +172,9 @@ private fun UserGridContent(users: List<User>, onItemClick: (User) -> Unit) {
 @Composable
 fun UserItem(user: User, onClick: () -> Unit) {
     val cardColor = when {
-        user.age <= 30 -> Color(0xFFC8E6C9) // Warna Hijau Muda
-        user.age in 31..40 -> Color(0xFFFFF9C4) // Warna Kuning Muda
-        else -> Color(0xFFFFE0B2) // Warna Oranye Muda
+        user.age <= 30 -> Color(0xFFC8E6C9) // Hijau Muda
+        user.age in 31..40 -> Color(0xFFFFF9C4) // Kuning Muda
+        else -> Color(0xFFFFE0B2) // Oranye Muda
     }
 
     Card(
