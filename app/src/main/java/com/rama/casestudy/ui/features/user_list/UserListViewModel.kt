@@ -21,7 +21,7 @@ class UserListViewModel(
         fetchUsers()
     }
 
-    private fun fetchUsers(limit: Int = 30, skip: Int = 0) {
+    fun fetchUsers(limit: Int = 30, skip: Int = 0) {
         viewModelScope.launch {
             _userListState.value = Resource.Loading()
             val result = repository.getUsers(limit, skip)

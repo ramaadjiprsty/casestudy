@@ -25,6 +25,7 @@ import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.rama.casestudy.domain.model.User
 import com.rama.casestudy.navigation.Screen
+import com.rama.casestudy.ui.component.ErrorScreen
 import com.rama.casestudy.util.Resource
 import org.koin.androidx.compose.koinViewModel
 
@@ -72,10 +73,9 @@ fun UserListScreen(
                     }
                 }
                 is Resource.Error -> {
-                    Text(
-                        text = state.message ?: "An unknown error occurred",
-                        modifier = Modifier.align(Alignment.Center),
-                        color = MaterialTheme.colorScheme.error
+                    ErrorScreen(
+                        message = state.message ?: "An unknown error occurred",
+                        onRetry = { viewModel.fetchUsers() }
                     )
                 }
             }
