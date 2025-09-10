@@ -5,6 +5,7 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import com.rama.casestudy.data.remote.retrofit.ApiService
 import com.rama.casestudy.data.repository.UserRepositoryImpl
 import com.rama.casestudy.domain.repository.UserRepository
+import com.rama.casestudy.ui.features.user_detail.UserDetailViewModel
 import com.rama.casestudy.ui.features.user_list.UserListViewModel
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -31,6 +32,7 @@ private val repositoryModule = module {
 
 private val viewModelModule = module {
     viewModel { UserListViewModel(get()) }
+    viewModel { UserDetailViewModel(get(), get()) }
 }
 
 // Gabungkan semua module menjadi satu list untuk dimuat di Application class

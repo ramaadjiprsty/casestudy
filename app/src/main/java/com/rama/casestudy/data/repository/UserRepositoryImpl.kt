@@ -25,4 +25,13 @@ class UserRepositoryImpl(
             Resource.Error("An unknown error occurred: ${e.localizedMessage}")
         }
     }
+
+    override suspend fun getUserById(id: Int): Resource<User> {
+        return try {
+            val userDto = api.getUserById(id)
+            Resource.Success(userDto.toUser())
+        } catch (e: Exception) {
+            Resource.Error("Failed to fetch user details: ${e.localizedMessage}")
+        }
+    }
 }

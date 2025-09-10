@@ -1,7 +1,9 @@
 package com.rama.casestudy.data.remote.retrofit
 
+import com.rama.casestudy.data.remote.dto.UserDto
 import com.rama.casestudy.data.remote.dto.UserListResponseDto
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 
@@ -11,4 +13,7 @@ interface ApiService {
         @Query("limit") limit: Int,
         @Query("skip") skip: Int
     ): UserListResponseDto
+
+    @GET("users/{id}")
+    suspend fun getUserById(@Path("id") id: Int): UserDto
 }
