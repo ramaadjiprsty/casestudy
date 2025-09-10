@@ -12,7 +12,6 @@ class UserRepositoryImpl(
     private val api: ApiService
 ) : UserRepository {
     override suspend fun getUsers(limit: Int, skip: Int): Resource<List<User>> {
-        // Log baru tepat sebelum pemanggilan API
         Log.d("KoinSetup", ">>> MENCOBA MEMANGGIL api.getUsers di dalam UserRepositoryImpl <<<")
 
         return try {
@@ -20,7 +19,6 @@ class UserRepositoryImpl(
             val users = response.users.map { it.toUser() }
             Resource.Success(users)
         } catch (e: Exception) {
-            // Log error yang lebih detail, dengan menyertakan 'e'
             Log.e("KoinSetup", "!!! ERROR di UserRepositoryImpl !!!", e)
             Resource.Error("An unknown error occurred: ${e.localizedMessage}")
         }

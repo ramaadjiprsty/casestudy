@@ -137,7 +137,6 @@ fun UserDetailContent(user: User) {
     }
 }
 
-// Composable terpisah untuk detail item
 @Composable
 fun DetailItem(label: String, value: String, labelColor: Color = Color.Unspecified) {
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {

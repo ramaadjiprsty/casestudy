@@ -9,7 +9,6 @@ import androidx.navigation.navArgument
 import com.rama.casestudy.ui.features.user_detail.UserDetailScreen
 import com.rama.casestudy.ui.features.user_list.UserListScreen
 
-// Definisikan rute dalam sealed class untuk type-safety
 sealed class Screen(val route: String) {
     object UserList : Screen("user_list_screen")
     object UserDetail : Screen("user_detail_screen/{userId}") {

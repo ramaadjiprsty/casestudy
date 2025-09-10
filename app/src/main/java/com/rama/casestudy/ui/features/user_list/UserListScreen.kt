@@ -51,7 +51,6 @@ fun UserListScreen(
 ) {
     val state = viewModel.userListState.collectAsState().value
 
-    // Tambahkan Scaffold di sini sebagai root layout untuk layar ini
     Scaffold(
         topBar = {
             TopAppBar(

@@ -38,12 +38,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             TestCaseTheme {
                 KoinAndroidContext {
-                    // Hapus Scaffold dari sini. Biarkan Surface menjadi root.
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                        // Langsung panggil AppNavigation
                         AppNavigation()
                     }
                 }

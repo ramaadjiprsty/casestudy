@@ -35,5 +35,4 @@ private val viewModelModule = module {
     viewModel { UserDetailViewModel(get(), get()) }
 }
 
-// Gabungkan semua module menjadi satu list untuk dimuat di Application class
 val appModule = listOf(networkModule, repositoryModule, viewModelModule)
