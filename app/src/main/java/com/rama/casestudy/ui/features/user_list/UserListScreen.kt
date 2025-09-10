@@ -10,10 +10,15 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +43,8 @@ fun UserListScreen(
     val state = viewModel.userListState.collectAsState().value
     val configuration = LocalConfiguration.current
 
+    var isMenuExpanded by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -45,7 +52,35 @@ fun UserListScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.primary
-                )
+                ),
+                actions = {
+                    Box {
+                        IconButton(onClick = { isMenuExpanded = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "Sort Menu")
+                        }
+
+                        // Menu Dropdown
+                        DropdownMenu(
+                            expanded = isMenuExpanded,
+                            onDismissRequest = { isMenuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Sort Ascending (A-Z)") },
+                                onClick = {
+                                    viewModel.sortUsers(SortOrder.ASCENDING)
+                                    isMenuExpanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Sort Descending (Z-A)") },
+                                onClick = {
+                                    viewModel.sortUsers(SortOrder.DESCENDING)
+                                    isMenuExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -64,7 +99,6 @@ fun UserListScreen(
                             navController.navigate(Screen.UserDetail.createRoute(user.id))
                         }
 
-                        // Cek orientasi layar untuk menentukan layout
                         if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                             UserGridContent(users = users, onItemClick = onItemClick)
                         } else {
