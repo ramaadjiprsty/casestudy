@@ -60,23 +60,22 @@
         androidTestImplementation(libs.androidx.ui.test.junit4)
         debugImplementation(libs.androidx.ui.tooling)
         debugImplementation(libs.androidx.ui.test.manifest)
-        implementation("androidx.navigation:navigation-compose:2.7.7")
+        implementation(libs.androidx.navigation.compose)
 
-        val koinVersion = "3.5.6"
-        implementation("io.insert-koin:koin-android:$koinVersion")
-        implementation("io.insert-koin:koin-androidx-compose:$koinVersion")
+        implementation(libs.koin.android)
+        implementation(libs.koin.androidx.compose)
 
         // Retrofit
-        implementation("com.squareup.retrofit2:retrofit:2.9.0")
+        implementation(libs.retrofit)
 
         // converter kotlinx serialization
-        implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
-        implementation("com.squareup.okhttp3:okhttp:4.12.0")
-        implementation("com.squareup.okhttp3:okhttp:4.12.0")
+        implementation(libs.retrofit2.kotlinx.serialization.converter)
+        implementation(libs.okhttp3.okhttp)
+        implementation(libs.okhttp3.okhttp)
 
         // Kotlinx Serialization
-        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+        implementation(libs.kotlinx.serialization.json)
 
-        implementation("io.coil-kt.coil3:coil-compose:3.3.0")
-        implementation("io.coil-kt.coil3:coil-network-okhttp:3.3.0")
+        implementation(libs.coil.compose)
+        implementation(libs.coil.network.okhttp)
     }
